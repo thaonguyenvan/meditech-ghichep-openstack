@@ -96,21 +96,21 @@
 
 #### Metadata
 
-- [Tìm hiểu về metadata service](./docs/06.Advanced/metadata.md)
-- [Tìm hiểu về cloud-init](./docs/06.Advanced/cloud-init-intro.md)
-- [Một số ví dụ với cloud-config](./docs/06.Advanced/examples.md)
-- [Một số module phổ biến thường được dùng trong cloud-init](./docs/06.Advanced/module.md)
+- [Tìm hiểu về metadata service](./docs/100.Advanced/metadata.md)
+- [Tìm hiểu về cloud-init](./docs/100.Advanced/cloud-init-intro.md)
+- [Một số ví dụ với cloud-config](./docs/100.Advanced/examples.md)
+- [Một số module phổ biến thường được dùng trong cloud-init](./docs/100.Advanced/module.md)
 
 #### Một số functions
 
-- [Hướng dẫn rebuild lại máy ảo trong trường hợp Compute bị chết](./docs/06.Advanced/evacuate.md)
-- [Tìm hiểu về migrate máy ảo trong OpenStack](./docs/06.Advanced/migration.md)
-- [Hướng dẫn resize máy ảo](./docs/06.Advanced/resize.md)
-- [Hướng dẫn reset root password của máy ảo CentOS 7 trên OpenStack](./docs/06.Advanced/Huong-dan-reset-root-password-may-ao-centos-tren-openstack.md)
+- [Hướng dẫn rebuild lại máy ảo trong trường hợp Compute bị chết](./docs/100.Advanced/evacuate.md)
+- [Tìm hiểu về migrate máy ảo trong OpenStack](./docs/100.Advanced/migration.md)
+- [Hướng dẫn resize máy ảo](./docs/100.Advanced/resize.md)
+- [Hướng dẫn reset root password của máy ảo CentOS 7 trên OpenStack](./docs/100.Advanced/Huong-dan-reset-root-password-may-ao-centos-tren-openstack.md)
 
 #### Hướng dẫn tạo image
 
-- [Hướng dẫn đóng image CentOS 7 với Cloud-init (không dùng LVM)](./docs/06.Advanced/CentOS-7-cloudinit-noLVM.md)
-- [Hướng dẫn đóng image Ubuntu 14.04 với cloud-init (không dùng LVM)](./docs/06.Advanced/Ubuntu14-04-cloudinit-noLVM.md)
+- [Hướng dẫn đóng image CentOS 7 với Cloud-init (không dùng LVM)](./docs/100.Advanced/CentOS-7-cloudinit-noLVM.md)
+- [Hướng dẫn đóng image Ubuntu 14.04 với cloud-init (không dùng LVM)](./docs/100.Advanced/Ubuntu14-04-cloudinit-noLVM.md)
 
 (C) MediTech JSC,. - https://meditech.vn

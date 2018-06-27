@@ -134,7 +134,7 @@ echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
 exit
 ```
 
-- Thực hiện với quyền root, scp key pair tới compute node
+- Thực hiện với quyền root, scp key pair tới compute node. Nhập mật khẩu khi được yêu cầu.
 
 ``` sh
 scp /var/lib/nova/.ssh/id_rsa.pub root@compute2:/root/
@@ -144,7 +144,7 @@ scp /var/lib/nova/.ssh/id_rsa.pub root@compute2:/root/
 
 ``` sh
 mkdir -p /var/lib/nova/.ssh
-cat id_rsa.pub >> /var/lib/nova/.ssh/authorized_keys
+cat /root/id_rsa.pub >> /var/lib/nova/.ssh/authorized_keys
 echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
 ```
 
@@ -185,11 +185,12 @@ Các yêu cầu chung:
 
 **Cấu hình migration**
 
+```
 sed -i 's/#listen_tls = 0/listen_tls = 0/g' /etc/libvirt/libvirtd.conf
 sed -i 's/#listen_tcp = 1/listen_tcp = 1/g' /etc/libvirt/libvirtd.conf
 sed -i 's/#auth_tcp = "sasl"/auth_tcp = "none"/g' /etc/libvirt/libvirtd.conf
 sed -i 's/#LIBVIRTD_ARGS="--listen"/LIBVIRTD_ARGS="--listen"/g' /etc/sysconfig/libvirtd
-
+```
 
 - Restart lại dịch vụ:
 

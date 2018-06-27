@@ -61,23 +61,23 @@ Dưới đây là các hình minh họa tiến trình khi thực hiện migrate 
 
 - Pre-migration: VM trên host A đang chạy, host B được lựa chọn bởi người dùng hoặc scheduler.
 
-<img src="/images/migrate1.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate1.png?raw=true">
 
 - Reservation: Xác nhận host B có đủ tà nguyên để thực hiện migrate, tạo mới một máy ảo trên host B.
 
-<img src="/images/migrate3.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate3.png?raw=true">
 
 - Iterative pre-copy : Bộ nhớ được di chuyển, máy ảo mới ở trạng thái suspend
 
-<img src="/images/migrate5.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate5.png?raw=true">
 
 - Stop and copy : Suspend máy ảo và copy phần còn lại cũng như trạng thái của CPU.
 
-<img src="/images/migrate6.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate6.png?raw=true">
 
 - Commitment : Host B trở thành primary host cho VM.
 
-<img src="/images/migrate7.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate7.png?raw=true">
 
 <a name="compare"></a>
 ### 3. So sánh ưu nhược điểm giữa cold và live migrate
@@ -106,7 +106,7 @@ Dưới đây là các hình minh họa tiến trình khi thực hiện migrate 
 
 - Trong live-migrate, có 2 loại đó là True live migration và Block live migration. Hình dưới đây mô tả những loại storage mà 2 loại migration trên hỗ trợ:
 
-<img src="/images/migrate2.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate2.png?raw=true">
 
 **Ngữ cảnh sử dụng:**
 
@@ -120,51 +120,40 @@ Dưới đây là các hình minh họa tiến trình khi thực hiện migrate 
 
 **Các bước cấu hình SSH Tunneling giữa các Nodes compute**
 
-- Cho phép user nova có thể login (thực hiện trên tất cả các node compute)
+- Cho phép user nova có thể login (thực hiện trên tất cả các node compute).
+Ví dụ ở đây ta muốn migrate vm từ node compute1 (192.168.10.1) tới node compute2 (192.168.10.2).
 
-`# usermod -s /bin/bash nova`
+`usermod -s /bin/bash nova`
 
 - Thực hiện tạo key pair trên node compute nguồn cho user nova
 
 ``` sh
-# su nova
-$ ssh-keygen
-$ echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
-$ cat /var/lib/nova/.ssh/id_rsa.pub >> /var/lib/nova/.ssh/authorized_keys
-$ exit
+su nova
+ssh-keygen
+echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
+exit
 ```
 
-- Thực hiện với quyền root, scp key pari tới compute node
+- Thực hiện với quyền root, scp key pair tới compute node
 
 ``` sh
-scp /var/lib/nova/.ssh/id_rsa computeNodeAddress:~/
-scp /var/lib/nova/.ssh/id_rsa.pub computeNodeAddress:~/
+scp /var/lib/nova/.ssh/id_rsa.pub root@compute2:/root/
 ```
 
 - Trên node đích, thay đổi quyền của key pair cho user nova và add key pair đó vào SSH.
 
 ``` sh
-$ mkdir -p /var/lib/nova/.ssh
-$ cp id_rsa /var/lib/nova/.ssh/
-$ cat id_rsa.pub >> /var/lib/nova/.ssh/authorized_keys
-$ chown nova:nova /var/lib/nova/.ssh/authorized_keys
-$ chown nova:nova /var/lib/nova/.ssh/id_rsa
-$ echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
+mkdir -p /var/lib/nova/.ssh
+cat id_rsa.pub >> /var/lib/nova/.ssh/authorized_keys
+echo 'StrictHostKeyChecking no' >> /var/lib/nova/.ssh/config
 ```
 
-- Kiểm tra để chắc chắn rằng user `nova` có thể login được vào node compute còn lại mà không cần sử dụng password
+- Từ node compute1 kiểm tra để chắc chắn rằng user `nova` có thể login được vào node compute2 còn lại mà không cần sử dụng password
 
 ``` sh
-# su nova
-$ ssh computeNodeAddress
-$ exit
-```
-
-- - Thực hiện restart service (Thực hiện trên cả node nguồn và đích)
-
-``` sh
-systemctl restart libvirtd.service
-systemctl restart openstack-nova-compute.service
+su nova
+ssh 192.168.10.2
+exit
 ```
 
 **Thực hiện migrate máy ảo**
@@ -196,22 +185,11 @@ Các yêu cầu chung:
 
 **Cấu hình migration**
 
-- Sửa thông tin trong libvirt
-cp /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.orig
+sed -i 's/#listen_tls = 0/listen_tls = 0/g' /etc/libvirt/libvirtd.conf
+sed -i 's/#listen_tcp = 1/listen_tcp = 1/g' /etc/libvirt/libvirtd.conf
+sed -i 's/#auth_tcp = "sasl"/auth_tcp = "none"/g' /etc/libvirt/libvirtd.conf
+sed -i 's/#LIBVIRTD_ARGS="--listen"/LIBVIRTD_ARGS="--listen"/g' /etc/sysconfig/libvirtd
 
-``` sh
-sed -i 's|#listen_tls = 0|listen_tls = 0|'g /etc/libvirt/libvirtd.conf
-sed -i 's|#listen_tcp = 1|listen_tcp = 1|'g /etc/libvirt/libvirtd.conf
-sed -i 's|#tcp_port = "16509"|tcp_port = "16509"|'g /etc/libvirt/libvirtd.conf
-sed -i 's|#auth_tcp = "sasl"|auth_tcp = "none"|'g /etc/libvirt/libvirtd.conf
-
-cp /etc/sysconfig/libvirtd /etc/sysconfig/libvirtd.orig
-sed -i 's|#LIBVIRTD_ARGS="--listen"|LIBVIRTD_ARGS="--listen"|'g /etc/sysconfig/libvirtd
-```
-
-- Cập nhậy URL trong file `/etc/nova/nova.conf`
-
-`live_migration_uri=qemu+tcp://nova@%s/system`
 
 - Restart lại dịch vụ:
 
@@ -293,7 +271,7 @@ block_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER, VIR_MIG
 
 Máy ảo sẽ chuyển sang trạng thái `MIGRATING`.
 
-<img src="/images/migrate4.png">
+<img src="https://github.com/thaonguyenvan/meditech-thuctap/blob/master/ThaoNV/Tim%20hieu%20OpenStack/images/migrate4.png?raw=true">
 
 Sau một khoảng thời gian, máy ảo sẽ được migrate sang node compute mới.
 
